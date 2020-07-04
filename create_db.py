@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 db = sqlite3.connect('Account.db')
 cur = db.cursor()
@@ -14,6 +15,19 @@ cur.execute("""CREATE TABLE IF NOT EXISTS Account (
 )""")
 
 db.commit()
+
+
+def import_from_json(path):
+    #если хотите импортировать переменные из json файла, то используйте эту функцию, как  должна выглядить файл смотрите в json_example.json
+    with open(path) as f:
+        data = json.loads(f.read())
+        cur.execute(f"SELECT PHONE FROM Account WHERE PHONE = '{data[0]['Phone']}'")
+        if cur.fetchone() is None:
+            for var in data:
+                print("Зарегистрированно!")
+                cur.execute("""INSERT INTO Account(PHONE, PASS, API_ID, API_HASH, ACTIVITY, LITECOIN) VALUES (?,?,?,?,?,?);""", (var['Phone'], var['password'], var['Api_id'], var['Api_hash'], var['Activity'], var['Litecoin']))
+                db.commit()
+                
 
 Phone = "+88005553535"
 password = "13236546460"
